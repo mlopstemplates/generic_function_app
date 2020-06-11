@@ -59,6 +59,8 @@ public static class GridEventHandler{
 
             var PATTOKEN =  Environment.GetEnvironmentVariable("PATTOKEN", EnvironmentVariableTarget.Process);
             log.LogInformation($"PATTOKEN: {PATTOKEN}");
+            
+            var repo_name = Environment.GetEnvironmentVariable("repo_name", EnvironmentVariableTarget.Process);
 
             httpClient.DefaultRequestHeaders.Add("Authorization", PATTOKEN);
 
@@ -68,7 +70,7 @@ public static class GridEventHandler{
             var payload = Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject { ["event_type"] = "deploy-command", ["client_payload"] = client_payload });
             
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await httpClient.PostAsync("https://api.github.com/repos/cs1170353/test_mlops/dispatches", content);
+            HttpResponseMessage response = await httpClient.PostAsync(repo_name, content);
             var resultString = await response.Content.ReadAsStringAsync();
             Console.WriteLine(resultString);
             return (ActionResult)new OkObjectResult(resultString);

@@ -70,7 +70,7 @@ public static class GridEventHandler{
             var payload = Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject { ["event_type"] = "deploy-command", ["client_payload"] = client_payload });
             
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await httpClient.PostAsync(repo_name, content);
+            HttpResponseMessage response = await httpClient.PostAsync("https://api.github.com/repos/"+repo_name+"/dispatches", content);
             var resultString = await response.Content.ReadAsStringAsync();
             Console.WriteLine(resultString);
             return (ActionResult)new OkObjectResult(resultString);

@@ -80,6 +80,6 @@ public static class GridEventHandler{
                 return (ActionResult)new OkObjectResult(resultString);
             }
         }
-        
+       return (ActionResult)new OkObjectResult("OK"); 
     }
 }

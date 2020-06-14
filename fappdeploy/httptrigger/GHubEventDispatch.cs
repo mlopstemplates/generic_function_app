@@ -54,7 +54,7 @@ public static class GridEventHandler{
 
         }
 
-        if (requestObject["eventType"] == "Microsoft.MachineLearningServices.RunStatusChanged" ){
+        if (requestObject["eventType"] == "Microsoft.MachineLearningServices.RunCompleted" ){
             
             using (var httpClient = new HttpClient())
             {
@@ -69,7 +69,7 @@ public static class GridEventHandler{
                 httpClient.DefaultRequestHeaders.Add("Authorization", "token "+PATTOKEN);
 
 
-                var client_payload = new Newtonsoft.Json.Linq.JObject { ["unit "] = false, ["integration"] = true, ["github_SHA"] = "7a6fe10d22b5c44be55698f6d123c6480451e18b"};
+                var client_payload = new Newtonsoft.Json.Linq.JObject { ["unit "] = false, ["integration"] = true, ["data"] = requestObject["data"]};
 
                 var payload = Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject { ["event_type"] = "deploy-command", ["client_payload"] = client_payload });
                 

@@ -39,20 +39,16 @@ public static class GridEventHandler{
         dynamic requestObject = JsonConvert.DeserializeObject(requestBody);
         var webhook_res = string.Empty;
         // log.LogInformation(requestObject);
-        try{
-            if (requestObject != null && requestObject[0]["data"] != null){
-                log.LogInformation("I am here.");
-                var validationCode = requestObject[0].data.validationCode;
 
+        if (requestObject[0]["eventType"] == "Microsoft.EventGrid.SubscriptionValidationEvent" ){
+            if (requestObject != null && requestObject[0]["data"] != null){
+                var validationCode = requestObject[0].data.validationCode;
                 if(validationCode != null){
                 webhook_res= Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject {["validationResponse"]= validationCode});
                 return (ActionResult)new OkObjectResult($"{webhook_res}");
-                }
+            }
         }
-        }
-        catch(Exception ex){
-
-        }
+        
 
         if (requestObject[0]["eventType"] == "Microsoft.MachineLearningServices.RunCompleted" ){
             

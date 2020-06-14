@@ -46,6 +46,7 @@ public static class GridEventHandler{
                 if(validationCode != null){
                 webhook_res= Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject {["validationResponse"]= validationCode});
                 return (ActionResult)new OkObjectResult($"{webhook_res}");
+                }
             }
         }
         

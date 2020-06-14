@@ -39,40 +39,47 @@ public static class GridEventHandler{
         dynamic requestObject = JsonConvert.DeserializeObject(requestBody);
         var webhook_res = string.Empty;
         // log.LogInformation(requestObject);
-        
-        if (requestObject != null && requestObject[0]["data"] != null){
-            log.LogInformation("I am here.");
-            var validationCode = requestObject[0].data.validationCode;
+        try{
+            if (requestObject != null && requestObject[0]["data"] != null){
+                log.LogInformation("I am here.");
+                var validationCode = requestObject[0].data.validationCode;
 
-            if(validationCode != null){
-            webhook_res= Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject {["validationResponse"]= validationCode});
-            return (ActionResult)new OkObjectResult($"{webhook_res}");
+                if(validationCode != null){
+                webhook_res= Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject {["validationResponse"]= validationCode});
+                return (ActionResult)new OkObjectResult($"{webhook_res}");
+                }
+        }
+        }
+        catch(Exception ex){
+
+        }
+
+        if (requestObject["eventType"] == "Microsoft.MachineLearningServices.RunStatusChanged" ){
+            
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                httpClient.DefaultRequestHeaders.Add("User-Agent", "Awesome-Octocat-App");
+                httpClient.DefaultRequestHeaders.Accept.Clear();
+
+                var PATTOKEN =  Environment.GetEnvironmentVariable("PAT_TOKEN", EnvironmentVariableTarget.Process);
+            
+                var repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
+
+                httpClient.DefaultRequestHeaders.Add("Authorization", PATTOKEN);
+
+
+                var client_payload = new Newtonsoft.Json.Linq.JObject { ["unit "] = false, ["integration"] = true, ["github_SHA"] = "7a6fe10d22b5c44be55698f6d123c6480451e18b"};
+
+                var payload = Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject { ["event_type"] = "deploy-command", ["client_payload"] = client_payload });
+                
+                var content = new StringContent(payload, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await httpClient.PostAsync("https://api.github.com/repos/"+repo_name+"/dispatches", content);
+                var resultString = await response.Content.ReadAsStringAsync();
+                Console.WriteLine(resultString);
+                return (ActionResult)new OkObjectResult(resultString);
             }
         }
-
-       
-        using (var httpClient = new HttpClient())
-        {
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "Awesome-Octocat-App");
-            httpClient.DefaultRequestHeaders.Accept.Clear();
-
-            var PATTOKEN =  Environment.GetEnvironmentVariable("PAT_TOKEN", EnvironmentVariableTarget.Process);
-           
-            var repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
-
-            httpClient.DefaultRequestHeaders.Add("Authorization", PATTOKEN);
-
-
-            var client_payload = new Newtonsoft.Json.Linq.JObject { ["unit "] = false, ["integration"] = true, ["github_SHA"] = "7a6fe10d22b5c44be55698f6d123c6480451e18b"};
-
-            var payload = Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject { ["event_type"] = "deploy-command", ["client_payload"] = client_payload });
-            
-            var content = new StringContent(payload, Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await httpClient.PostAsync("https://api.github.com/repos/"+repo_name+"/dispatches", content);
-            var resultString = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(resultString);
-            return (ActionResult)new OkObjectResult(resultString);
-        }
+        
     }
 }

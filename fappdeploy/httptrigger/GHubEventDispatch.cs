@@ -66,7 +66,7 @@ public static class GridEventHandler{
             
                 var repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
 
-                httpClient.DefaultRequestHeaders.Add("Authorization", PATTOKEN);
+                httpClient.DefaultRequestHeaders.Add("Authorization", "token "+PATTOKEN);
 
 
                 var client_payload = new Newtonsoft.Json.Linq.JObject { ["unit "] = false, ["integration"] = true, ["github_SHA"] = "7a6fe10d22b5c44be55698f6d123c6480451e18b"};

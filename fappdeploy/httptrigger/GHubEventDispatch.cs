@@ -57,10 +57,9 @@ public static class GridEventHandler{
             httpClient.DefaultRequestHeaders.Add("User-Agent", "Awesome-Octocat-App");
             httpClient.DefaultRequestHeaders.Accept.Clear();
 
-            var PATTOKEN =  Environment.GetEnvironmentVariable("PATTOKEN", EnvironmentVariableTarget.Process);
-            log.LogInformation($"PATTOKEN: {PATTOKEN}");
-            
-            var repo_name = Environment.GetEnvironmentVariable("repo_name", EnvironmentVariableTarget.Process);
+            var PATTOKEN =  Environment.GetEnvironmentVariable("PAT_TOKEN", EnvironmentVariableTarget.Process);
+           
+            var repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
 
             httpClient.DefaultRequestHeaders.Add("Authorization", PATTOKEN);
 

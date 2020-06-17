@@ -49,6 +49,7 @@ public static class GridEventHandler{
                 }
             }
         }
+        
 
         if (requestObject[0]["eventType"].Contains("Microsoft.MachineLearningServices"))
         {
@@ -57,13 +58,12 @@ public static class GridEventHandler{
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 httpClient.DefaultRequestHeaders.Add("User-Agent", "Awesome-Octocat-App");
                 httpClient.DefaultRequestHeaders.Accept.Clear();
-
+             
                 var PATTOKEN =  Environment.GetEnvironmentVariable("PAT_TOKEN", EnvironmentVariableTarget.Process);
             
                 var repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
 
                 httpClient.DefaultRequestHeaders.Add("Authorization", "token "+PATTOKEN);
-
 
                 var client_payload = new Newtonsoft.Json.Linq.JObject { ["unit "] = false, ["integration"] = true, ["data"] = requestObject[0]["data"]};
 
@@ -99,7 +99,7 @@ public static class GridEventHandler{
                 return (ActionResult)new OkObjectResult(resultString);
             }
         }
-        
+      
        return (ActionResult)new OkObjectResult("OK"); 
     }
 }

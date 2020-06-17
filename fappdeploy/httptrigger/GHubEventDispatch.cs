@@ -40,7 +40,6 @@ public static class GridEventHandler{
         var webhook_res = string.Empty;
         var current_event = requestObject[0]["eventType"].ToString();
 
-        log.LogInformation(current_event);
         if (current_event == "Microsoft.EventGrid.SubscriptionValidationEvent" ){
             if (requestObject != null && requestObject[0]["data"] != null){
                 var validationCode = requestObject[0].data.validationCode;

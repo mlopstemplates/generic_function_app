@@ -39,39 +39,67 @@ public static class GridEventHandler{
         dynamic requestObject = JsonConvert.DeserializeObject(requestBody);
         var webhook_res = string.Empty;
         // log.LogInformation(requestObject);
-        
-        if (requestObject != null && requestObject[0]["data"] != null){
-            log.LogInformation("I am here.");
-            var validationCode = requestObject[0].data.validationCode;
 
-            if(validationCode != null){
-            webhook_res= Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject {["validationResponse"]= validationCode});
-            return (ActionResult)new OkObjectResult($"{webhook_res}");
+        if (requestObject[0]["eventType"] == "Microsoft.EventGrid.SubscriptionValidationEvent" ){
+            if (requestObject != null && requestObject[0]["data"] != null){
+                var validationCode = requestObject[0].data.validationCode;
+                if(validationCode != null){
+                webhook_res= Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject {["validationResponse"]= validationCode});
+                return (ActionResult)new OkObjectResult($"{webhook_res}");
+                }
             }
         }
 
-       
-        using (var httpClient = new HttpClient())
+        if (requestObject[0]["eventType"].Contains("Microsoft.MachineLearningServices"))
         {
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "Awesome-Octocat-App");
-            httpClient.DefaultRequestHeaders.Accept.Clear();
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                httpClient.DefaultRequestHeaders.Add("User-Agent", "Awesome-Octocat-App");
+                httpClient.DefaultRequestHeaders.Accept.Clear();
 
-            var PATTOKEN =  Environment.GetEnvironmentVariable("PATTOKEN", EnvironmentVariableTarget.Process);
-            log.LogInformation($"PATTOKEN: {PATTOKEN}");
-
-            httpClient.DefaultRequestHeaders.Add("Authorization", PATTOKEN);
-
-
-            var client_payload = new Newtonsoft.Json.Linq.JObject { ["unit "] = false, ["integration"] = true, ["github_SHA"] = "7a6fe10d22b5c44be55698f6d123c6480451e18b"};
-
-            var payload = Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject { ["event_type"] = "deploy-command", ["client_payload"] = client_payload });
+                var PATTOKEN =  Environment.GetEnvironmentVariable("PAT_TOKEN", EnvironmentVariableTarget.Process);
             
-            var content = new StringContent(payload, Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await httpClient.PostAsync("https://api.github.com/repos/cs1170353/test_mlops/dispatches", content);
-            var resultString = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(resultString);
-            return (ActionResult)new OkObjectResult(resultString);
+                var repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
+
+                httpClient.DefaultRequestHeaders.Add("Authorization", "token "+PATTOKEN);
+
+
+                var client_payload = new Newtonsoft.Json.Linq.JObject { ["unit "] = false, ["integration"] = true, ["data"] = requestObject[0]["data"]};
+
+                var event_types = "model-updated";
+
+                if(requestObject[0]["eventType"] == "Microsoft.MachineLearningServices.RunCompleted")
+                {
+                    event_types = "model-updated";
+                }
+                else if(requestObject[0]["eventType"] == "Microsoft.MachineLearningServices.RunStatusChanged")
+                {
+                    event_types = "model-failed";
+                }
+                else if(requestObject[0]["eventType"] == "Microsoft.MachineLearningServices.ModelRegistered")
+                {
+                    event_types = "model-registered";
+                }
+                else if(requestObject[0]["eventType"] == "Microsoft.MachineLearningServices.ModelDeployed")
+                {
+                    event_types = "model-deployed";
+                }
+                else if(requestObject[0]["eventType"] == "Microsoft.MachineLearningServices.DatasetDriftDetected")
+                {
+                    event_types = "data-drift-detected";
+                }
+
+                var payload = Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject { ["event_type"] = event_types, ["client_payload"] = client_payload });
+                
+                var content = new StringContent(payload, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await httpClient.PostAsync("https://api.github.com/repos/"+repo_name+"/dispatches", content);
+                var resultString = await response.Content.ReadAsStringAsync();
+                Console.WriteLine(resultString);
+                return (ActionResult)new OkObjectResult(resultString);
+            }
         }
+        
+       return (ActionResult)new OkObjectResult("OK"); 
     }
 }

@@ -39,7 +39,7 @@ public static class GridEventHandler{
         dynamic requestObject = JsonConvert.DeserializeObject(requestBody);
         var webhook_res = string.Empty;
         var current_event = requestObject[0]["eventType"].ToString();
-        log.LogInformation(current_event);
+
 
         if (current_event == "Microsoft.EventGrid.SubscriptionValidationEvent" ){
             if (requestObject != null && requestObject[0]["data"] != null){
@@ -52,7 +52,7 @@ public static class GridEventHandler{
         }
         
 
-        if (current_event.Contains("Microsoft.MachineLearningServices", OrdinalIgnoreCase))
+        if (current_event.Contains("Microsoft.MachineLearningServices"))
         {
             using (var httpClient = new HttpClient())
             {

@@ -38,7 +38,7 @@ public static class GridEventHandler{
         string requestBody = await req.Content.ReadAsStringAsync();
         dynamic requestObject = JsonConvert.DeserializeObject(requestBody);
         var webhook_res = string.Empty;
-        var current_event = requestObject[0]["eventType"];
+        var current_event = requestObject[0]["eventType"].ToString();
         log.LogInformation(current_event);
 
         if (current_event == "Microsoft.EventGrid.SubscriptionValidationEvent" ){

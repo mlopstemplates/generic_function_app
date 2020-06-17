@@ -38,9 +38,10 @@ public static class GridEventHandler{
         string requestBody = await req.Content.ReadAsStringAsync();
         dynamic requestObject = JsonConvert.DeserializeObject(requestBody);
         var webhook_res = string.Empty;
+        var current_event = requestObject[0]["eventType"];
         // log.LogInformation(requestObject);
 
-        if (requestObject[0]["eventType"] == "Microsoft.EventGrid.SubscriptionValidationEvent" ){
+        if (current_event == "Microsoft.EventGrid.SubscriptionValidationEvent" ){
             if (requestObject != null && requestObject[0]["data"] != null){
                 var validationCode = requestObject[0].data.validationCode;
                 if(validationCode != null){
@@ -51,43 +52,45 @@ public static class GridEventHandler{
         }
         
 
-        if (requestObject[0]["eventType"].Contains("Microsoft.MachineLearningServices"))
+        if (current_event.Contains("Microsoft.MachineLearningServices"))
         {
             using (var httpClient = new HttpClient())
             {
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 httpClient.DefaultRequestHeaders.Add("User-Agent", "Awesome-Octocat-App");
                 httpClient.DefaultRequestHeaders.Accept.Clear();
-             
+
                 var PATTOKEN =  Environment.GetEnvironmentVariable("PAT_TOKEN", EnvironmentVariableTarget.Process);
-            
                 var repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
 
                 httpClient.DefaultRequestHeaders.Add("Authorization", "token "+PATTOKEN);
 
                 var client_payload = new Newtonsoft.Json.Linq.JObject { ["unit "] = false, ["integration"] = true, ["data"] = requestObject[0]["data"]};
+                var event_types = "unknown";
 
-                var event_types = "model-updated";
-
-                if(requestObject[0]["eventType"] == "Microsoft.MachineLearningServices.RunCompleted")
+                if(current_event == "Microsoft.MachineLearningServices.RunCompleted")
                 {
-                    event_types = "model-updated";
+                    event_types = "run-completed";
                 }
-                else if(requestObject[0]["eventType"] == "Microsoft.MachineLearningServices.RunStatusChanged")
+                else if(current_event == "Microsoft.MachineLearningServices.RunStatusChanged")
                 {
-                    event_types = "model-failed";
+                    event_types = "run-status-changed";
                 }
-                else if(requestObject[0]["eventType"] == "Microsoft.MachineLearningServices.ModelRegistered")
+                else if(current_event == "Microsoft.MachineLearningServices.ModelRegistered")
                 {
                     event_types = "model-registered";
                 }
-                else if(requestObject[0]["eventType"] == "Microsoft.MachineLearningServices.ModelDeployed")
+                else if(current_event == "Microsoft.MachineLearningServices.ModelDeployed")
                 {
                     event_types = "model-deployed";
                 }
-                else if(requestObject[0]["eventType"] == "Microsoft.MachineLearningServices.DatasetDriftDetected")
+                else if(current_event == "Microsoft.MachineLearningServices.DatasetDriftDetected")
                 {
                     event_types = "data-drift-detected";
+                }
+                else
+                {
+                    event_types = "unknown";
                 }
 
                 var payload = Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject { ["event_type"] = event_types, ["client_payload"] = client_payload });
@@ -99,7 +102,7 @@ public static class GridEventHandler{
                 return (ActionResult)new OkObjectResult(resultString);
             }
         }
-      
+
        return (ActionResult)new OkObjectResult("OK"); 
     }
 }

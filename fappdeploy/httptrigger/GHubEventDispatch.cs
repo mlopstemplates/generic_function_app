@@ -38,8 +38,7 @@ public static class GridEventHandler{
         string requestBody = await req.Content.ReadAsStringAsync();
         dynamic requestObject = JsonConvert.DeserializeObject(requestBody);
         var webhook_res = string.Empty;
-        var current_event = requestObject[0]["eventType"];
-        // log.LogInformation(requestObject);
+        var current_event = requestObject[0]["eventType"].ToString();
 
         if (current_event == "Microsoft.EventGrid.SubscriptionValidationEvent" ){
             if (requestObject != null && requestObject[0]["data"] != null){
@@ -61,7 +60,13 @@ public static class GridEventHandler{
                 httpClient.DefaultRequestHeaders.Accept.Clear();
 
                 var PATTOKEN =  Environment.GetEnvironmentVariable("PAT_TOKEN", EnvironmentVariableTarget.Process);
-                var repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
+                // var repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
+                var repo_name = requestObject[0]["runTags"]["githuB_REPOSITORY"].ToString();
+
+                if(string.IsNullOrEmpty(repo_name))
+                {
+                    repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
+                }
 
                 httpClient.DefaultRequestHeaders.Add("Authorization", "token "+PATTOKEN);
 
@@ -98,11 +103,10 @@ public static class GridEventHandler{
                 var content = new StringContent(payload, Encoding.UTF8, "application/json");
                 HttpResponseMessage response = await httpClient.PostAsync("https://api.github.com/repos/"+repo_name+"/dispatches", content);
                 var resultString = await response.Content.ReadAsStringAsync();
-                Console.WriteLine(resultString);
-                return (ActionResult)new OkObjectResult(resultString);
+                return (ActionResult)new OkObjectResult("dispatch event sent");
             }
         }
 
-       return (ActionResult)new OkObjectResult("OK"); 
+       return (ActionResult)new OkObjectResult(current_event); 
     }
 }

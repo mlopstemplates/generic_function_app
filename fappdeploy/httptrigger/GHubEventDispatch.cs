@@ -61,12 +61,16 @@ public static class GridEventHandler{
 
                 var PATTOKEN =  Environment.GetEnvironmentVariable("PAT_TOKEN", EnvironmentVariableTarget.Process);
                 // var repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
-                var repo_name = requestObject[0]["runTags"]["githuB_REPOSITORY"].ToString();
 
-                if(string.IsNullOrEmpty(repo_name))
+                if(requestObject[0]["runTags"]==null || requestObject[0]["runTags"]["githuB_REPOSITORY"]==null)
                 {
-                    log.LogInformation("Couldn't get run tags.");
                     repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
+                    log.LogInformation("Why null?.");
+                }
+                else
+                {
+                    var repo_name = requestObject[0]["runTags"]["githuB_REPOSITORY"].ToString();
+                    log.LogInformation("Oh my god!");
                 }
 
                 httpClient.DefaultRequestHeaders.Add("Authorization", "token "+PATTOKEN);

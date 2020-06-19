@@ -65,6 +65,7 @@ public static class GridEventHandler{
 
                 if(string.IsNullOrEmpty(repo_name))
                 {
+                    log.LogInformation("Couldn't get run tags.");
                     repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
                 }
 

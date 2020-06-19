@@ -66,12 +66,12 @@ public static class GridEventHandler{
                 if(requestObject[0]["data"]["runTags"]==null || requestObject[0]["data"]["runTags"]["githuB_REPOSITORY"]==null)
                 {
                     repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
-                    log.LogInformation("Why null?.");
+                    log.LogInformation("Fetching repo name from Environment variables.");
                 }
                 else
                 {
                     repo_name = requestObject[0]["data"]["runTags"]["githuB_REPOSITORY"].ToString();
-                    log.LogInformation("Oh my god!");
+                    log.LogInformation("Fetching repo name from runTags");
                 }
 
                 httpClient.DefaultRequestHeaders.Add("Authorization", "token "+PATTOKEN);

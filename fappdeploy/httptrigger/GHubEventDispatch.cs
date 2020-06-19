@@ -61,7 +61,8 @@ public static class GridEventHandler{
 
                 var PATTOKEN =  Environment.GetEnvironmentVariable("PAT_TOKEN", EnvironmentVariableTarget.Process);
                 // var repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
-
+                var repo_name = "";
+                
                 if(requestObject[0]["runTags"]==null || requestObject[0]["runTags"]["githuB_REPOSITORY"]==null)
                 {
                     repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
@@ -69,7 +70,7 @@ public static class GridEventHandler{
                 }
                 else
                 {
-                    var repo_name = requestObject[0]["runTags"]["githuB_REPOSITORY"].ToString();
+                    repo_name = requestObject[0]["runTags"]["githuB_REPOSITORY"].ToString();
                     log.LogInformation("Oh my god!");
                 }
 

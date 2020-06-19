@@ -63,14 +63,14 @@ public static class GridEventHandler{
                 // var repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
                 var repo_name = "";
                 
-                if(requestObject[0]["runTags"]==null || requestObject[0]["runTags"]["githuB_REPOSITORY"]==null)
+                if(requestObject[0]["data"]["runTags"]==null || requestObject[0]["data"]["runTags"]["githuB_REPOSITORY"]==null)
                 {
                     repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
                     log.LogInformation("Why null?.");
                 }
                 else
                 {
-                    repo_name = requestObject[0]["runTags"]["githuB_REPOSITORY"].ToString();
+                    repo_name = requestObject[0]["data"]["runTags"]["githuB_REPOSITORY"].ToString();
                     log.LogInformation("Oh my god!");
                 }
 

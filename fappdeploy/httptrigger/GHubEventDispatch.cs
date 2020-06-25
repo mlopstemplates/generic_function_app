@@ -31,7 +31,7 @@ using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 
 public static class GridEventHandler{
     [FunctionName("PrettyPoisons")]
-    public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]HttpRequestMessage req, ILogger log, ExecutionContext context)
+    public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequestMessage req, ILogger log, ExecutionContext context)
     {
         log.LogInformation("C# HTTP trigger function processed a request.");
 

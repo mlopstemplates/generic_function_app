@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 
 public static class GridEventHandler{
-    [FunctionName("PrettyPoisons")]
+    [FunctionName("generic_triggers")]
     public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequestMessage req, ILogger log, ExecutionContext context)
     {
         log.LogInformation("C# HTTP trigger function processed a request.");
@@ -49,10 +49,20 @@ public static class GridEventHandler{
                 }
             }
         }
-        
 
-        if (current_event.Contains("Microsoft.MachineLearningServices"))
+        string[] event_data = current_event.Split(".");
+        string event_source = "";
+        string event_type = "";
+
+        if(event_data.Length>1)
         {
+            event_source = event_data[1];
+        }
+
+        if(event_data.Length>2)
+        {
+            event_type = event_data[2].ToLower();
+
             using (var httpClient = new HttpClient())
             {
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -60,7 +70,7 @@ public static class GridEventHandler{
                 httpClient.DefaultRequestHeaders.Accept.Clear();
 
                 var PATTOKEN =  Environment.GetEnvironmentVariable("PAT_TOKEN", EnvironmentVariableTarget.Process);
-                // var repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
+                
                 var repo_name = "";
                 
                 if(requestObject[0]["data"]["runTags"]==null || requestObject[0]["data"]["runTags"]["githuB_REPOSITORY"]==null)
@@ -76,35 +86,10 @@ public static class GridEventHandler{
 
                 httpClient.DefaultRequestHeaders.Add("Authorization", "token "+PATTOKEN);
 
-                var client_payload = new Newtonsoft.Json.Linq.JObject { ["unit "] = false, ["integration"] = true, ["data"] = requestObject[0]["data"]};
-                var event_types = "unknown";
-
-                if(current_event == "Microsoft.MachineLearningServices.RunCompleted")
-                {
-                    event_types = "run-completed";
-                }
-                else if(current_event == "Microsoft.MachineLearningServices.RunStatusChanged")
-                {
-                    event_types = "run-status-changed";
-                }
-                else if(current_event == "Microsoft.MachineLearningServices.ModelRegistered")
-                {
-                    event_types = "model-registered";
-                }
-                else if(current_event == "Microsoft.MachineLearningServices.ModelDeployed")
-                {
-                    event_types = "model-deployed";
-                }
-                else if(current_event == "Microsoft.MachineLearningServices.DatasetDriftDetected")
-                {
-                    event_types = "data-drift-detected";
-                }
-                else
-                {
-                    event_types = "unknown";
-                }
-
-                var payload = Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject { ["event_type"] = event_types, ["client_payload"] = client_payload });
+                var client_payload = new Newtonsoft.Json.Linq.JObject { ["unit "] = false, ["integration"] = true, 
+                                                ["data"] = requestObject[0]["data"], ["event_source"] = event_source};
+                
+                var payload = Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject { ["event_type"] = event_type, ["client_payload"] = client_payload });
                 
                 var content = new StringContent(payload, Encoding.UTF8, "application/json");
                 HttpResponseMessage response = await httpClient.PostAsync("https://api.github.com/repos/"+repo_name+"/dispatches", content);
@@ -113,6 +98,6 @@ public static class GridEventHandler{
             }
         }
 
-       return (ActionResult)new OkObjectResult(current_event); 
+        return (ActionResult)new OkObjectResult(current_event); 
     }
 }

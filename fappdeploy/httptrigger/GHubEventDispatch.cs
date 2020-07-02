@@ -32,37 +32,36 @@ using System.Collections.Generic;
 
 public static class GridEventHandler{
     [FunctionName("generic_triggers")]
+
+    private string ParseEventGridValidationCode(dynamic requestObject)
+    {
+        var webhook_res = string.Empty;
+
+        if (requestObject != null && requestObject[0]["data"] != null){
+            var validationCode = requestObject[0].data.validationCode;
+            if(validationCode != null){
+                webhook_res = Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject {["validationResponse"]= validationCode});
+            }
+        }
+
+        return webhook_res;
+    }
+
     public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequestMessage req, ILogger log, ExecutionContext context)
     {
         log.LogInformation("C# HTTP trigger function processed a request.");
 
         string requestBody = await req.Content.ReadAsStringAsync();
         dynamic requestObject = JsonConvert.DeserializeObject(requestBody);
-        var webhook_res = string.Empty;
         var current_event = requestObject[0]["eventType"].ToString();
-        string typ = requestObject.GetType();
-        log.LogInformation("type: "+typ);
 
         if (current_event == "Microsoft.EventGrid.SubscriptionValidationEvent" ){
-            if (requestObject != null && requestObject[0]["data"] != null){
-                var validationCode = requestObject[0].data.validationCode;
-                if(validationCode != null){
-                webhook_res= Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject {["validationResponse"]= validationCode});
+            string webhook_res = ParseEventGridValidationCode(requestObject);
+            if(!string.IsNullOrEmpty(webhook_res)){
                 return (ActionResult)new OkObjectResult($"{webhook_res}");
-                }
             }
         }
-        
-//         IDictionary<string, string> queryParams = req.GetQueryNameValuePairs().ToDictionary(x => x.Key, x => x.Value);
 
-//         string repo_name = "";
-
-//         if(queryParams.ContainsKey("repoName"))
-//         {
-//             repo_name = queryParams["repoName"];
-//             log.LogInformation("fetching repo name from query parameters.");
-//         }
-        
         var queryParams = System.Web.HttpUtility.ParseQueryString(req.RequestUri.Query);
         string repo_name = queryParams.Get("repoName");
 

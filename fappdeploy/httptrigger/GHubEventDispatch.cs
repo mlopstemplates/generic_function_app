@@ -51,7 +51,7 @@ public static class GridEventHandler{
             }
         }
         
-        IDictionary<string, string> queryParams = req.GetQueryParameterDictionary();
+        IDictionary<string, string> queryParams = req.GetQueryNameValuePairs().ToDictionary(x => x.Key, x => x.Value);
 
         string repo_name = "";
 

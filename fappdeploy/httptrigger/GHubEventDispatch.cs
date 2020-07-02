@@ -51,23 +51,23 @@ public static class GridEventHandler{
             }
         }
         
-        IDictionary<string, string> queryParams = req.GetQueryNameValuePairs().ToDictionary(x => x.Key, x => x.Value);
+//         IDictionary<string, string> queryParams = req.GetQueryNameValuePairs().ToDictionary(x => x.Key, x => x.Value);
 
-        string repo_name = "";
+//         string repo_name = "";
 
-        if(queryParams.ContainsKey("repoName"))
-        {
-            repo_name = queryParams["repoName"];
-            log.LogInformation("fetching repo name from query parameters.");
-        }
-        
-//         var queryParams = System.Web.HttpUtility.ParseQueryString(req.RequestUri.Query);
-//         string repo_name = queryParams.Get("repoName");
-
-//         if(repo_name!="")
+//         if(queryParams.ContainsKey("repoName"))
 //         {
-//             log.LogInformation("fetching repo name from query parameters."+repo_name);
+//             repo_name = queryParams["repoName"];
+//             log.LogInformation("fetching repo name from query parameters.");
 //         }
+        
+        var queryParams = System.Web.HttpUtility.ParseQueryString(req.RequestUri.Query);
+        string repo_name = queryParams.Get("repoName");
+
+        if(repo_name!="")
+        {
+            log.LogInformation("fetching repo name from query parameters."+repo_name);
+        }
 
         string[] event_data = current_event.Split(".");
         string event_source = "";

@@ -58,8 +58,16 @@ public static class GridEventHandler{
         if(queryParams.ContainsKey("repoName"))
         {
             repo_name = queryParams["repoName"];
-            log.LogInformation("fetching repo name from query parameters.")
+            log.LogInformation("fetching repo name from query parameters.");
         }
+        
+//         var queryParams = System.Web.HttpUtility.ParseQueryString(req.RequestUri.Query);
+//         string repo_name = queryParams.Get("repoName");
+
+//         if(repo_name!="")
+//         {
+//             log.LogInformation("fetching repo name from query parameters."+repo_name);
+//         }
 
         string[] event_data = current_event.Split(".");
         string event_source = "";

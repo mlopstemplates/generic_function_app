@@ -62,8 +62,7 @@ public static class GridEventHandler{
 //         }
         
         var queryParams = System.Web.HttpUtility.ParseQueryString(req.RequestUri.Query);
-//         string repo_name = queryParams.Get("repoName");
-        string repo_name = req.RequestUri.ToString();
+        string repo_name = queryParams.Get("repoName");
 
         if(repo_name!="")
         {

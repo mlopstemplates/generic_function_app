@@ -31,7 +31,6 @@ using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using System.Collections.Generic;
 
 public static class GridEventHandler{
-    [FunctionName("generic_triggers")]
 
     private static string ParseEventGridValidationCode(dynamic requestObject)
     {
@@ -46,7 +45,8 @@ public static class GridEventHandler{
 
         return webhook_res;
     }
-
+    
+    [FunctionName("generic_triggers")]
     public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequestMessage req, ILogger log, ExecutionContext context)
     {
         log.LogInformation("C# HTTP trigger function processed a request.");

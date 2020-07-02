@@ -28,6 +28,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
+using System.Collections.Generic;
 
 public static class GridEventHandler{
     [FunctionName("generic_triggers")]

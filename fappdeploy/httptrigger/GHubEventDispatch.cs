@@ -49,6 +49,16 @@ public static class GridEventHandler{
                 }
             }
         }
+        
+        IDictionary<string, string> queryParams = req.GetQueryParameterDictionary();
+
+        string repo_name = "";
+
+        if(queryParams.ContainsKey("repoName"))
+        {
+            repo_name = queryParams["repoName"];
+            log.LogInformation("fetching repo name from query parameters.")
+        }
 
         string[] event_data = current_event.Split(".");
         string event_source = "";
@@ -70,8 +80,6 @@ public static class GridEventHandler{
                 httpClient.DefaultRequestHeaders.Accept.Clear();
 
                 var PATTOKEN =  Environment.GetEnvironmentVariable("PAT_TOKEN", EnvironmentVariableTarget.Process);
-                
-                var repo_name = "";
                 
                 if(requestObject[0]["data"]["runTags"]==null || requestObject[0]["data"]["runTags"]["githuB_REPOSITORY"]==null)
                 {

@@ -33,7 +33,7 @@ using System.Collections.Generic;
 public static class GridEventHandler{
     [FunctionName("generic_triggers")]
 
-    private string ParseEventGridValidationCode(dynamic requestObject)
+    private static string ParseEventGridValidationCode(dynamic requestObject)
     {
         var webhook_res = string.Empty;
 

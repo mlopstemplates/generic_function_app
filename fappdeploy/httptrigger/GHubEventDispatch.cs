@@ -75,28 +75,31 @@ public static class GridEventHandler{
             }
         }
 
-        var queryParams = System.Web.HttpUtility.ParseQueryString(req.RequestUri.Query);
-        string repo_name = queryParams.Get("repoName");
-
-        if(repo_name!="")
-        {
-            log.LogInformation("fetching repo name from query parameters."+repo_name);
-        }
-
         string[] event_data = current_event.Split(".");
-        string event_source = "";
-        string event_type = "";
+        string event_source = string.Empty;
+        string event_type = string.Empty;
+        string req_data = string.Empty;
 
         if(event_data.Length>1){
             event_source = event_data[1];
             
             if(event_source == "MachineLearningServices"){
-                ParseMachineLearningEvent(requestObject);
+                req_data = ParseMachineLearningEvent(requestObject);
+            }
+            if(event_source == "Storage"){
+                req_data = ParseBlobStorageEvent(requestObject);
+            }
+            if(event_source == "ContainerRegistry"){
+                req_data = ParseContainerRegistryEvent(requestObject);
             }
         }
 
-        if(event_data.Length>2)
+        var queryParams = System.Web.HttpUtility.ParseQueryString(req.RequestUri.Query);
+        string repo_name = queryParams.Get("repoName");
+
+        if(event_data.Length>2 && !string.IsNullOrEmpty(repo_name))
         {
+            log.LogInformation("fetching repo name from query parameters."+repo_name);
             event_type = event_data[2].ToLower();
 
             using (var httpClient = new HttpClient())
@@ -107,21 +110,10 @@ public static class GridEventHandler{
 
                 var PATTOKEN =  Environment.GetEnvironmentVariable("PAT_TOKEN", EnvironmentVariableTarget.Process);
                 
-                if(requestObject[0]["data"]["runTags"]==null || requestObject[0]["data"]["runTags"]["githuB_REPOSITORY"]==null)
-                {
-                    repo_name = Environment.GetEnvironmentVariable("REPO_NAME", EnvironmentVariableTarget.Process);
-                    log.LogInformation("Fetching repo name from Environment variables.");
-                }
-                else
-                {
-                    repo_name = requestObject[0]["data"]["runTags"]["githuB_REPOSITORY"].ToString();
-                    log.LogInformation("Fetching repo name from runTags");
-                }
-
                 httpClient.DefaultRequestHeaders.Add("Authorization", "token "+PATTOKEN);
 
                 var client_payload = new Newtonsoft.Json.Linq.JObject { ["unit "] = false, ["integration"] = true, 
-                                                ["data"] = requestObject[0]["data"], ["event_source"] = event_source};
+                                                ["data"] = req_data, ["event_source"] = event_source};
                 
                 var payload = Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject { ["event_type"] = event_type, ["client_payload"] = client_payload });
                 

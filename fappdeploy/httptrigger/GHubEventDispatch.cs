@@ -44,19 +44,19 @@ public static class GridEventHandler{
         return webhook_res;
     }
     
-    private static string ParseMachineLearningEvent(dynamic requestObject)
+    private static dynamic ParseMachineLearningEvent(dynamic requestObject)
     {
-        return requestObject[0]["data"].ToString();
+        return requestObject[0]["data"];
     }
     
-    private static string ParseBlobStorageEvent(dynamic requestObject)
+    private static dynamic ParseBlobStorageEvent(dynamic requestObject)
     {
-        return requestObject[0]["data"].ToString();
+        return requestObject[0]["data"];
     }
     
-    private static string ParseContainerRegistryEvent(dynamic requestObject)
+    private static dynamic ParseContainerRegistryEvent(dynamic requestObject)
     {
-        return requestObject[0]["data"].ToString();
+        return requestObject[0]["data"];
     }
     
     [FunctionName("generic_triggers")]
@@ -78,7 +78,7 @@ public static class GridEventHandler{
         string[] event_data = current_event.Split(".");
         string event_source = string.Empty;
         string event_type = string.Empty;
-        string req_data = string.Empty;
+        dymanic req_data;
 
         if(event_data.Length>1){
             event_source = event_data[1];

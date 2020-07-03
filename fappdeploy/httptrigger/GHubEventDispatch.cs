@@ -44,17 +44,17 @@ public static class GridEventHandler{
         return webhook_res;
     }
     
-    private static dynamic ParseMachineLearningEvent(dynamic requestObject)
+    private static DynamicJsonObject ParseMachineLearningEvent(dynamic requestObject)
     {
         return requestObject[0]["data"];
     }
     
-    private static dynamic ParseBlobStorageEvent(dynamic requestObject)
+    private static DynamicJsonObject ParseBlobStorageEvent(dynamic requestObject)
     {
         return requestObject[0]["data"];
     }
     
-    private static dynamic ParseContainerRegistryEvent(dynamic requestObject)
+    private static DynamicJsonObject ParseContainerRegistryEvent(dynamic requestObject)
     {
         return requestObject[0]["data"];
     }
@@ -78,10 +78,19 @@ public static class GridEventHandler{
         string[] event_data = current_event.Split(".");
         string event_source = string.Empty;
         string event_type = string.Empty;
-        dynamic req_data;
-
+        
         if(event_data.Length>1){
             event_source = event_data[1];
+        }
+
+        var queryParams = System.Web.HttpUtility.ParseQueryString(req.RequestUri.Query);
+        string repo_name = queryParams.Get("repoName");
+
+        if(event_data.Length>2 && !string.IsNullOrEmpty(repo_name))
+        {
+            log.LogInformation("fetching repo name from query parameters."+repo_name);
+            event_type = event_data[2].ToLower();
+            var req_data = requestObject[0]["data"];
             
             if(event_source == "MachineLearningServices"){
                 req_data = ParseMachineLearningEvent(requestObject);
@@ -92,15 +101,6 @@ public static class GridEventHandler{
             if(event_source == "ContainerRegistry"){
                 req_data = ParseContainerRegistryEvent(requestObject);
             }
-        }
-
-        var queryParams = System.Web.HttpUtility.ParseQueryString(req.RequestUri.Query);
-        string repo_name = queryParams.Get("repoName");
-
-        if(event_data.Length>2 && !string.IsNullOrEmpty(repo_name))
-        {
-            log.LogInformation("fetching repo name from query parameters."+repo_name);
-            event_type = event_data[2].ToLower();
 
             using (var httpClient = new HttpClient())
             {

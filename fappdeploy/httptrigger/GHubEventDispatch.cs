@@ -35,15 +35,18 @@ public static class GridEventHandler{
     private static string ParseEventGridValidationCode(dynamic requestObject)
     {
         var webhook_res = string.Empty;
-
         if (requestObject != null && requestObject[0]["data"] != null){
             var validationCode = requestObject[0].data.validationCode;
             if(validationCode != null){
                 webhook_res = Newtonsoft.Json.JsonConvert.SerializeObject(new Newtonsoft.Json.Linq.JObject {["validationResponse"]= validationCode});
             }
         }
-
         return webhook_res;
+    }
+    
+    private static string ParseMachineLearningEvent(dynamic requestObject)
+    {
+        return requestObject[0]["data"];
     }
     
     [FunctionName("generic_triggers")]
@@ -74,9 +77,12 @@ public static class GridEventHandler{
         string event_source = "";
         string event_type = "";
 
-        if(event_data.Length>1)
-        {
+        if(event_data.Length>1){
             event_source = event_data[1];
+            
+            if(event_source == "MachineLearningServices"){
+                ParseMachineLearningEvent(requestObject);
+            }
         }
 
         if(event_data.Length>2)

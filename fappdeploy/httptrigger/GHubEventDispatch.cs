@@ -44,17 +44,17 @@ public static class GridEventHandler{
         return webhook_res;
     }
     
-    private static DynamicJsonObject ParseMachineLearningEvent(dynamic requestObject)
+    private static dynamic ParseMachineLearningEvent(dynamic requestObject)
     {
         return requestObject[0]["data"];
     }
     
-    private static DynamicJsonObject ParseBlobStorageEvent(dynamic requestObject)
+    private static dynamic ParseBlobStorageEvent(dynamic requestObject)
     {
         return requestObject[0]["data"];
     }
     
-    private static DynamicJsonObject ParseContainerRegistryEvent(dynamic requestObject)
+    private static dynamic ParseContainerRegistryEvent(dynamic requestObject)
     {
         return requestObject[0]["data"];
     }

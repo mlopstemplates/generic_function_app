@@ -46,17 +46,17 @@ public static class GridEventHandler{
     
     private static string ParseMachineLearningEvent(dynamic requestObject)
     {
-        return requestObject[0]["data"];
+        return requestObject[0]["data"].ToString();
     }
     
     private static string ParseBlobStorageEvent(dynamic requestObject)
     {
-        return requestObject[0]["data"];
+        return requestObject[0]["data"].ToString();
     }
     
     private static string ParseContainerRegistryEvent(dynamic requestObject)
     {
-        return requestObject[0]["data"];
+        return requestObject[0]["data"].ToString();
     }
     
     [FunctionName("generic_triggers")]

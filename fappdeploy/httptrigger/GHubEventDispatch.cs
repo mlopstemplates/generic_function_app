@@ -78,7 +78,7 @@ public static class GridEventHandler{
         string[] event_data = current_event.Split(".");
         string event_source = string.Empty;
         string event_type = string.Empty;
-        dymanic req_data;
+        dynamic req_data;
 
         if(event_data.Length>1){
             event_source = event_data[1];

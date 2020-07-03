@@ -49,6 +49,16 @@ public static class GridEventHandler{
         return requestObject[0]["data"];
     }
     
+    private static string ParseBlobStorageEvent(dynamic requestObject)
+    {
+        return requestObject[0]["data"];
+    }
+    
+    private static string ParseContainerRegistryEvent(dynamic requestObject)
+    {
+        return requestObject[0]["data"];
+    }
+    
     [FunctionName("generic_triggers")]
     public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequestMessage req, ILogger log, ExecutionContext context)
     {
